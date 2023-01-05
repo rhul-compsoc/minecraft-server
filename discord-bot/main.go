@@ -52,7 +52,7 @@ func main() {
 
 	// Add all commands here:
 	commandsList := []Command{
-		//new(HelpCommand),
+		new(SetupCommand),
 	}
 
 	// Create client instance
@@ -81,7 +81,7 @@ func main() {
 			Register(commandsList[i], client, commands)
 		}
 
-		err = client.SetActivity(&discord.Activity{Name: "/setup or /aocrank", Type: discord.ActivityListening})
+		err = client.SetActivity(&discord.Activity{Name: "'allo 'allo", Type: discord.ActivityListening})
 		if err != nil {
 			log.Print(err)
 		}
