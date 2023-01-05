@@ -4,6 +4,7 @@ import (
 	"github.com/Goscord/goscord/discord"
 	"github.com/Goscord/goscord/discord/embed"
 	"github.com/Goscord/goscord/gateway"
+	"github.com/jackc/pgtype"
 	"gorm.io/gorm"
 	"log"
 	"time"
@@ -28,17 +29,34 @@ type DiscordUser struct {
 	// This is a cache of whether or not the user has the admin role
 	HasAdminRole bool `gorm:"index"`
 	// This is whether the user and, all their accounts are banned
-	Banned         bool `gorm:"index"`
-	LastLoginTime  time.Time
-	LastLoginX     float32
-	LastLoginY     float32
-	MinecraftUsers []MinecraftUser `gorm:"foreignKey:DiscordUserID"`
+	Banned                bool                   `gorm:"index"`
+	DiscordUserID         string                 `gorm:"primaryKey"`
+	DiscordMinecraftUsers []DiscordMinecraftUser `gorm:"foreignKey:DiscordUserID"`
+}
+
+type DiscordMinecraftUser struct {
+	gorm.Model
+	DiscordUserID string
+	MinecraftUser MinecraftUser `gorm:"foreignKey:Username"`
 }
 
 type MinecraftUser struct {
 	gorm.Model
-	Username      string `gorm:"primaryKey"`
-	DiscordUserID string
+	Username       string `gorm:"primaryKey"`
+	LastLoginTime  time.Time
+	LastX          float32
+	LastY          float32
+	LastZ          float32
+	LastIpAddress  pgtype.Inet `gorm:"type:inet"`
+	LastChunkImage []byte
+	LastSkinImage  []byte
+}
+
+// Helper function to set IP addresses, probably won't be used lmao
+func SetInet(ip string) pgtype.Inet {
+	var inet pgtype.Inet
+	inet.Set(ip)
+	return inet
 }
 
 // This is a user that has been banned (not a discord user but a minecraft user) - this allows for them to
