@@ -27,7 +27,6 @@ type GuildSettings struct {
 }
 
 type DiscordUser struct {
-	gorm.Model
 	// This is a cache of whether or not the user has the admin role
 	HasAdminRole bool `gorm:"index"`
 	// This is whether the user and, all their accounts are banned
@@ -37,14 +36,12 @@ type DiscordUser struct {
 }
 
 type DiscordMinecraftUser struct {
-	gorm.Model
-	DiscordUserID string `gorm:"index"`
+	DiscordUserID string `gorm:"primaryKey"`
 	Verified      bool
-	MinecraftUser string
+	MinecraftUser string `gorm:"primaryKey"`
 }
 
 type MinecraftUser struct {
-	gorm.Model
 	Username           string `gorm:"primaryKey"`
 	LastLoginTime      time.Time
 	LastX              float32
