@@ -38,27 +38,23 @@ type DiscordUser struct {
 
 type DiscordMinecraftUser struct {
 	gorm.Model
-	DiscordUserID string
+	DiscordUserID string `gorm:"index"`
+	Verified      bool
 	MinecraftUser MinecraftUser `gorm:"foreignKey:Username"`
 }
 
 type MinecraftUser struct {
 	gorm.Model
-	Username       string `gorm:"primaryKey"`
-	LastLoginTime  time.Time
-	LastX          float32
-	LastY          float32
-	LastZ          float32
-	LastIpAddress  pgtype.Inet `gorm:"type:inet"`
-	LastChunkImage []byte
-	LastSkinImage  []byte
-}
-
-// This is a user that has been banned (not a discord user but a minecraft user) - this allows for them to
-// not be registered by other players - i.e: the banned users friends
-type BannedUser struct {
-	gorm.Model
-	Username string `gorm:primaryKey`
+	Username           string `gorm:"primaryKey"`
+	LastLoginTime      time.Time
+	LastX              float32
+	LastY              float32
+	LastZ              float32
+	LastIpAddress      pgtype.Inet `gorm:"type:inet"`
+	LastChunkImage     []byte
+	LastSkinImage      []byte
+	VerificationNumber int
+	Banned             bool
 }
 
 func reportMigrateError(err error) {
@@ -68,7 +64,6 @@ func reportMigrateError(err error) {
 }
 
 func AutoMigrateModel() {
-	reportMigrateError(db.AutoMigrate(&BannedUser{}))
 	reportMigrateError(db.AutoMigrate(&MinecraftUser{}))
 	reportMigrateError(db.AutoMigrate(&DiscordMinecraftUser{}))
 	reportMigrateError(db.AutoMigrate(&DiscordUser{}))
@@ -113,6 +108,7 @@ func Register(cmd Command, client *gateway.Session, commands map[string]Command)
 func ThemeEmbed(e *embed.Builder, ctx *Context) {
 	e.SetFooter(ctx.client.Me().Username, ctx.client.Me().AvatarURL())
 	e.SetColor(embed.Green)
+	e.SetThumbnail(ctx.interaction.Member.User.AvatarURL())
 }
 
 func SendError(message string, ctx *Context) {
@@ -120,7 +116,6 @@ func SendError(message string, ctx *Context) {
 
 	e.SetTitle("An Error Occurred During Your Command")
 	e.SetDescription(message)
-	e.SetThumbnail(ctx.interaction.Member.User.AvatarURL())
 	ThemeEmbed(e, ctx)
 
 	// Send response
@@ -131,11 +126,11 @@ func SendError(message string, ctx *Context) {
 }
 
 func SendAdminPermissionsError(gs GuildSettings, ctx *Context) {
-	SendError(fmt.Sprintf("You require the <@%s> role to perform this command.", gs.AdminRole), ctx)
+	SendError(fmt.Sprintf("You require the <@&%s> role to perform this command.", gs.AdminRole), ctx)
 }
 
 func SendPermissionsError(gs GuildSettings, ctx *Context) {
-	SendError(fmt.Sprintf("You require the <@%s> role to perform this command.", gs.AccessRole), ctx)
+	SendError(fmt.Sprintf("You require the <@&%s> role to perform this command.", gs.AccessRole), ctx)
 }
 
 func SendBannedError(ctx *Context) {
@@ -153,10 +148,24 @@ func SendInternalError(err error, ctx *Context) {
 
 func CheckGuild(ctx *Context) error {
 	guildid := ctx.interaction.GuildId
-	if guildid == COMPSOC_GUILD_ID {
+	if guildid != COMPSOC_GUILD_ID {
 		SendWrongGuildError(ctx)
 		log.Printf("Guild %s is not the CompSoc guild (%s).", guildid, COMPSOC_GUILD_ID)
 		return errors.New("Wrong guild.")
 	}
 	return nil
+}
+
+// Vile linear search (grim)
+func Contains(arr []string, key string) bool {
+	for _, item := range arr {
+		if item == key {
+			return true
+		}
+	}
+	return false
+}
+
+func UserIsAdmin(gs GuildSettings, user *discord.GuildMember) bool {
+	return Contains(user.Roles, gs.AdminRole)
 }

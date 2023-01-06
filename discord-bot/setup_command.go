@@ -25,13 +25,13 @@ func (c *SetupCommand) Category() string {
 func (c *SetupCommand) Options() []*discord.ApplicationCommandOption {
 	return []*discord.ApplicationCommandOption{
 		{
-			Type:        discord.ApplicationCommandOptionRole,
+			Type:        discord.ApplicationCommandOptionString, //Role,
 			Name:        "admin",
 			Description: "The role for the administrators of the minecraft server.",
 			Required:    true,
 		},
 		{
-			Type:        discord.ApplicationCommandOptionRole,
+			Type:        discord.ApplicationCommandOptionString, //Role,
 			Name:        "access",
 			Description: "The role for people who can use the minecraft server.",
 			Required:    true,
@@ -108,8 +108,8 @@ func (c *SetupCommand) Execute(ctx *Context) bool {
 
 	e := embed.NewEmbedBuilder()
 	message := fmt.Sprintf(`**Reconfigured by:** <@%s>
-**Admin Role:** <@%s>
-**Access Role:** <%s>
+**Admin Role:** <@&%s>
+**Access Role:** <@&%s>
 **Allow Registrations:** %b
 **Max Accounts Per User:** %d`,
 		ctx.interaction.Member.User.Id,

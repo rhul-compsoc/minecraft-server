@@ -3,7 +3,7 @@ module rhul-compsoc/minecraft-server
 go 1.19
 
 require (
-	github.com/Goscord/goscord v0.0.0-20220904014649-8e274d13b9ec
+	github.com/Goscord/goscord v0.0.0-20230106132539-3a883f59f92d
 	github.com/jackc/pgtype v1.13.0
 	github.com/joho/godotenv v1.4.0
 	gorm.io/driver/postgres v1.4.6

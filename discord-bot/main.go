@@ -9,6 +9,7 @@ import (
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"log"
+	"math/rand"
 	"os"
 	"runtime"
 	"time"
@@ -19,6 +20,8 @@ const COMPSOC_GUILD_ID = "500612695570120704"
 var db *gorm.DB
 
 func main() {
+	rand.Seed(time.Now().UnixNano())
+
 	fmt.Printf(" -> Environment information: \"%s\"\n", runtime.Version())
 	fmt.Println("Please send above data in any bug reports or support queries.")
 	log.SetFlags(log.Llongfile | log.Ldate | log.Ltime | log.Lmicroseconds)
@@ -53,6 +56,7 @@ func main() {
 	// Add all commands here:
 	commandsList := []Command{
 		new(SetupCommand),
+		new(AddAccountCommand),
 	}
 
 	// Create client instance
@@ -102,7 +106,10 @@ func main() {
 		cmd := commands[interaction.Data.Name]
 
 		if cmd != nil {
-			_ = cmd.Execute(&Context{client: client, interaction: interaction})
+			success := cmd.Execute(&Context{client: client, interaction: interaction})
+			if !success {
+				log.Printf("Failed to run '%s' command", cmd.Name())
+			}
 		}
 	})
 	if err != nil {

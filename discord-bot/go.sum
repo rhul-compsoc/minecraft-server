@@ -1,6 +1,8 @@
 github.com/BurntSushi/toml v0.3.1/go.mod h1:xHWCNGjB5oqiDr8zfno3MHue2Ht5sIBksp03qcyfWMU=
 github.com/Goscord/goscord v0.0.0-20220904014649-8e274d13b9ec h1:cBecnLieDnv9UoGBpNFBzPCm3On7MAbibLa+V76yQMo=
 github.com/Goscord/goscord v0.0.0-20220904014649-8e274d13b9ec/go.mod h1:E8w53GnIKy3BPTESZuZOXnFr60ftJjWb36b2fj1xvjQ=
+github.com/Goscord/goscord v0.0.0-20230106132539-3a883f59f92d h1:PFLkrlmKLr+sP0tQTDmZoHy4z7uSXqlqGb0uVZ4Y2kM=
+github.com/Goscord/goscord v0.0.0-20230106132539-3a883f59f92d/go.mod h1:E8w53GnIKy3BPTESZuZOXnFr60ftJjWb36b2fj1xvjQ=
 github.com/Masterminds/semver/v3 v3.1.1/go.mod h1:VPu/7SZ7ePZ3QOrcuXROw5FAcLl4a0cBrbBpGY/8hQs=
 github.com/asaskevich/EventBus v0.0.0-20200907212545-49d423059eef h1:2JGTg6JapxP9/R33ZaagQtAM4EkkSYnIAlOG5EI8gkM=
 github.com/asaskevich/EventBus v0.0.0-20200907212545-49d423059eef/go.mod h1:JS7hed4L1fj0hXcyEejnW57/7LCetXggd+vwrRnYeII=
