@@ -66,7 +66,7 @@ func (c *AddAccountCommand) Execute(ctx *Context) bool {
 			return errors.New(fmt.Sprintf("Invalid Permissions - you require the role <@&%s> to use this command.", gs.AccessRole))
 		}
 
-		// Check that the user is not banned
+		// Create the entries
 		discordUser := DiscordUser{
 			HasAdminRole:  UserIsAdmin(gs, ctx.interaction.Member),
 			Banned:        false,
@@ -78,8 +78,34 @@ func (c *AddAccountCommand) Execute(ctx *Context) bool {
 			return err
 		}
 
-		// Check that the user has under the maximum accounts
+		err = mdl.FirstOrCreate(&discordUser, ctx.interaction.Member.User.Id).Error
+		if err != nil {
+			return err
+		}
+
+		if discordUser.Banned {
+			return errors.New(fmt.Sprintf(`You have been banned from registering accounts.
+If this is in fault please contact <@&%s>`, gs.AdminRole))
+		}
+
+		// Check that nobody else has verified this account
+		mdl = tx.Model(&DiscordMinecraftUser{})
+		err = mdl.Error
+		if err != nil {
+			return err
+		}
+
 		var count int64
+		err = mdl.Where("discord_user_id = ? AND minecraft_user = ?", ctx.interaction.Member.User.Id, accountName).Count(&count).Error
+		if err != nil {
+			return err
+		}
+
+		if count != 0 {
+			return errors.New("This account has already been verified by somebody.")
+		}
+
+		// Check that the user has under the maximum accounts
 		mdl = tx.Model(&DiscordMinecraftUser{})
 		err = mdl.Error
 		if err != nil {
@@ -93,33 +119,6 @@ func (c *AddAccountCommand) Execute(ctx *Context) bool {
 
 		if count >= gs.MaxAccountsPerUser {
 			return errors.New("Maximum user count has been reached for your account.")
-		}
-
-		// Check that nobody else has verified this account
-		mdl = tx.Model(&DiscordMinecraftUser{})
-		err = mdl.Error
-		if err != nil {
-			return err
-		}
-
-		err = mdl.Where("discord_user_id = ? AND minecraft_user = ?", ctx.interaction.Member.User.Id, accountName).Count(&count).Error
-		if err != nil {
-			return err
-		}
-
-		if count != 0 {
-			return errors.New("This account has already been verified by somebody.")
-		}
-
-		// Create the entries
-		err = mdl.FirstOrCreate(&discordUser, ctx.interaction.Member.User.Id).Error
-		if err != nil {
-			return err
-		}
-
-		if discordUser.Banned {
-			return errors.New(fmt.Sprintf(`You have been banned from registering accounts.
-If this is in fault please contact <@&%s>`, gs.AdminRole))
 		}
 
 		// Create a new unverified user

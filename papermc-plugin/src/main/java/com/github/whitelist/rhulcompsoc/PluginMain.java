@@ -1,12 +1,16 @@
 package com.github.whitelist.rhulcompsoc;
 
 import io.github.cdimascio.dotenv.Dotenv;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
+import org.bukkit.event.player.AsyncPlayerPreLoginEvent;
+import org.bukkit.event.player.AsyncPlayerPreLoginEvent.Result;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.sql.SQLException;
 import java.util.logging.Level;
 
-public class PluginMain extends JavaPlugin {
+public class PluginMain extends JavaPlugin implements Listener {
     /**
      * This is the database connector for the plugin, it will connect to a PSQL database that stores all of the required
      * data for the server.
@@ -54,10 +58,39 @@ public class PluginMain extends JavaPlugin {
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
+
+        this.getServer().getPluginManager().registerEvents(this, this);
     }
 
     @Override
     public void onDisable() {
         this.getLogger().log(Level.INFO, "Compsoc Whitelist plugin disabled.");
+    }
+
+    @EventHandler
+    public void onPlayerLogin(AsyncPlayerPreLoginEvent event) {
+        try {
+            MinecraftUser user = this.conn.getUser(event.getName());
+
+            // Check for bans
+            if (user.isBanned()) {
+                event.disallow(Result.KICK_BANNED, "Your account has been banned via the Discord bot. Please contract committee if this is wrong.");
+                getLogger().info("User " + event.getName() + " has been banned but has tried to join.");
+                return;
+            } else if (user.getVerified() == 0) {
+                // Check that the user has been verified at least once
+                event.disallow(Result.KICK_OTHER, "This Minecraft account has not been verified yet, please use '/mcverify "
+                        + event.getName() + " "
+                        + user.getVerificationNumber() + "' to verify your account");
+                return;
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            event.disallow(Result.KICK_OTHER, "An internal server error has occurred :(");
+            return;
+        }
+
+        event.allow();
     }
 }

@@ -50,7 +50,7 @@ type MinecraftUser struct {
 	LastIpAddress      pgtype.Inet `gorm:"type:inet"`
 	LastChunkImage     []byte
 	LastSkinImage      []byte
-	VerificationNumber int
+	VerificationNumber int64
 	Banned             bool
 }
 
@@ -98,6 +98,8 @@ func Register(cmd Command, client *gateway.Session, commands map[string]Command)
 	_, err := client.Application.RegisterCommand(client.Me().Id, "", appCmd)
 	if err != nil {
 		log.Printf("Error registering command '%s' - %s", cmd.Name(), err)
+	} else {
+		log.Printf("Registered command '%s'", cmd.Name())
 	}
 	commands[cmd.Name()] = cmd
 }
