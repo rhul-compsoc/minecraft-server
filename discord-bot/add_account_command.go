@@ -78,6 +78,40 @@ func (c *AddAccountCommand) Execute(ctx *Context) bool {
 			return err
 		}
 
+		// Check that the user has under the maximum accounts
+		var count int64
+		mdl = tx.Model(&DiscordMinecraftUser{})
+		err = mdl.Error
+		if err != nil {
+			return err
+		}
+
+		err = mdl.Where("discord_user_id = ?", ctx.interaction.Member.User.Id).Count(&count).Error
+		if err != nil {
+			return err
+		}
+
+		if count >= gs.MaxAccountsPerUser {
+			return errors.New("Maximum user count has been reached for your account.")
+		}
+
+		// Check that nobody else has verified this account
+		mdl = tx.Model(&DiscordMinecraftUser{})
+		err = mdl.Error
+		if err != nil {
+			return err
+		}
+
+		err = mdl.Where("discord_user_id = ? AND minecraft_user = ?", ctx.interaction.Member.User.Id, accountName).Count(&count).Error
+		if err != nil {
+			return err
+		}
+
+		if count != 0 {
+			return errors.New("This account has already been verified by somebody.")
+		}
+
+		// Create the entries
 		err = mdl.FirstOrCreate(&discordUser, ctx.interaction.Member.User.Id).Error
 		if err != nil {
 			return err
