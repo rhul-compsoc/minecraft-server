@@ -57,6 +57,7 @@ func main() {
 	commandsList := []Command{
 		new(SetupCommand),
 		new(AddAccountCommand),
+		new(VerifyCommand),
 	}
 
 	// Create client instance
@@ -85,7 +86,8 @@ func main() {
 			Register(commandsList[i], client, commands)
 		}
 
-		err = client.SetActivity(&discord.Activity{Name: "'allo 'allo", Type: discord.ActivityListening})
+		log.Print("Setting activity")
+		err = client.SetActivity(&discord.Activity{Name: "mc.computingsociety.co.uk", Type: discord.ActivityListening})
 		if err != nil {
 			log.Print(err)
 		}
@@ -116,12 +118,12 @@ func main() {
 		log.Fatal(err)
 	}
 
-	// Login client :
+	// Login client
 	if err := client.Login(); err != nil {
 		log.Fatal(err)
 	}
 
-	// Keep bot running :
+	// Keep bot running
 	log.Print("Bot started")
 	//go UpdateThread()
 	select {}
