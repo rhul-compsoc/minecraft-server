@@ -119,7 +119,7 @@ If this is in fault please contact <@&%s>`, gs.AdminRole))
 		// Add discord minecraft user
 		discordMinecraftUser := DiscordMinecraftUser{
 			DiscordUserID: ctx.interaction.Member.User.Id,
-			MinecraftUser: minecraftUser,
+			MinecraftUser: accountName,
 			Verified:      false,
 		}
 		mdl = tx.Model(&discordMinecraftUser)
@@ -160,7 +160,7 @@ Please join **mc.computingsociety.co.uk** with this user to verify the account a
 	ctx.client.Interaction.CreateResponse(ctx.interaction.Id,
 		ctx.interaction.Token,
 		&discord.InteractionCallbackMessage{Embeds: []*embed.Embed{e.Embed()},
-			Flags: discord.MessageFlagEphemeral})
+			Flags: discord.MessageFlagUrgent})
 
 	log.Print("<@%s> added user %s to the whitelist, it is not verified yet", ctx.interaction.Member.User.Id, accountName)
 	return true

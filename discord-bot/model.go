@@ -40,7 +40,7 @@ type DiscordMinecraftUser struct {
 	gorm.Model
 	DiscordUserID string `gorm:"index"`
 	Verified      bool
-	MinecraftUser MinecraftUser `gorm:"foreignKey:Username"`
+	MinecraftUser string
 }
 
 type MinecraftUser struct {
