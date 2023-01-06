@@ -1,2 +1,0 @@
-Command: /home/danny/.gradle/jdks/adoptium-18-x64-hotspot-linux/bin/java -Dpaperclip.patchonly=true -classpath /home/ssd4/github/minecraft-server/papermc-plugin/.gradle/caches/paperweight/setupCache/extractDevBundle.dir/data/paperclip-mojang+yarn.jar io.papermc.paperclip.Main
-Applying patches
