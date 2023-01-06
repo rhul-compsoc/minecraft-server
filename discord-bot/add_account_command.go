@@ -162,6 +162,6 @@ Please join **mc.computingsociety.co.uk** with this user to verify the account a
 		&discord.InteractionCallbackMessage{Embeds: []*embed.Embed{e.Embed()},
 			Flags: discord.MessageFlagUrgent})
 
-	log.Print("<@%s> added user %s to the whitelist, it is not verified yet", ctx.interaction.Member.User.Id, accountName)
+	log.Printf("<@%s> added user %s to the whitelist, it is not verified yet", ctx.interaction.Member.User.Id, accountName)
 	return true
 }

@@ -8,10 +8,10 @@ plugins {
 }
 
 var pluginName = "example"
-group = "com.cuppuppy"
+group = "com.github.rhulcompsoc"
 version = "1.0.0-SNAPSHOT"
-description = "Test plugin for paperweight-userdev"
-var pluginMain = "com.cuppuppy.example.PluginMain"
+description = "Compsoc Whitelist Plugin"
+var pluginMain = "com.github.rhulcompsoc.whitelist.PluginMain"
 var pluginApiVersion = "1.18"
 
 java {
@@ -20,7 +20,9 @@ java {
 }
 
 repositories {
-  maven("https://repo.dmulloy2.net/repository/public/") /* For ProtocolLib */
+  maven("https://repo.dmulloy2.net/repository/public/")
+  mavenCentral()
+  /* For ProtocolLib */
 }
 dependencies {
   compileOnly("com.comphenix.protocol", "ProtocolLib", "4.8.0")
@@ -30,7 +32,13 @@ dependencies {
   // You will need to manually specify the full dependency if using the groovy gradle dsl
   // (paperDevBundle and paperweightDevBundle functions do not work in groovy)
   // paperweightDevelopmentBundle("io.papermc.paper:dev-bundle:1.19-R0.1-SNAPSHOT")
-
+  implementation("io.github.cdimascio:dotenv-java:2.3.1")
+  implementation("com.google.guava:guava:31.1-jre")
+  implementation("org.postgresql:postgresql:42.5.1")
+  implementation("org.apache.logging.log4j:log4j-core:2.19.0")
+  implementation("org.apache.logging.log4j:log4j-api:2.19.0")
+  implementation("org.slf4j:slf4j-log4j12:2.0.5")
+  implementation("org.apache.commons:commons-dbcp2:2.9.0")
 }
 
 tasks {
@@ -70,5 +78,5 @@ bukkit {
   load = BukkitPluginDescription.PluginLoadOrder.POSTWORLD /* Needs to be post world, because we add NPCs to the world on load */
   main = "${pluginMain}"
   apiVersion = "${pluginApiVersion}"
-  authors = listOf("CupPuppy")
+  authors = listOf("Danny Piper (djpiper28)")
 }
