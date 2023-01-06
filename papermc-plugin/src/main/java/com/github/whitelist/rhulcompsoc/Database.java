@@ -17,8 +17,6 @@ public class Database {
     private final org.apache.logging.log4j.Logger logger = LogManager.getLogger(this.getClass().getName());
     private final BasicDataSource ds = new BasicDataSource();
     private String url, username, password;
-    private PreparedStatement getMinecraftUserPs;
-    private PreparedStatement getVerficationCountForUserPs;
 
     /**
      * Construct a database connector with given login details
@@ -41,35 +39,6 @@ public class Database {
         this.ds.setMaxIdle(100);
         this.ds.setMaxOpenPreparedStatements(100);
         this.ds.setMaxTotal(500);
-
-        this.getMinecraftUserPs = this.prepareStatement("SELECT * FROM minecraft_users WHERE username = ?;");
-        this.getVerficationCountForUserPs = this.prepareStatement("SELECT count(discord_user_id) FROM discord_minecraft_users WHERE verified = true AND miencraft_user = ?;");
-    }
-
-    /**
-     * Prepares a statement and, returns it.
-     *
-     * @param statement the SQL statement to prepare on this database
-     * @return the prepared statement, not null
-     * @throws SQLException thrown when the statement cannot be prepared
-     * @since 2
-     */
-    private PreparedStatement prepareStatement(String statement) throws SQLException {
-        AtomicReference<PreparedStatement> ret = null;
-        AtomicReference<SQLException> ex = null;
-
-        this.runOnDatabase((conn -> {
-            try {
-                ret.set(conn.prepareStatement(statement));
-            } catch (SQLException e) {
-                ex.set(e);
-            }
-        }));
-
-        if (ex != null) {
-            throw ex.get();
-        }
-        return ret.get();
     }
 
     /**
@@ -114,6 +83,8 @@ public class Database {
         this.runOnDatabase((conn -> {
             try {
                 conn.setAutoCommit(false);
+                PreparedStatement getVerficationCountForUserPs = conn.prepareStatement("SELECT count(discord_user_id) FROM discord_minecraft_users WHERE verified = true AND miencraft_user = ?;");
+                PreparedStatement getMinecraftUserPs = conn.prepareStatement("SELECT * FROM minecraft_users WHERE username = ?;");
 
                 getVerficationCountForUserPs.setString(1, username);
                 ResultSet res = getVerficationCountForUserPs.executeQuery();
