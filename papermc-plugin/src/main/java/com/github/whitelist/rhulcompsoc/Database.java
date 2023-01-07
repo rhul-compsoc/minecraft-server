@@ -3,6 +3,7 @@ package com.github.whitelist.rhulcompsoc;
 import org.apache.commons.dbcp2.BasicDataSource;
 import org.apache.logging.log4j.LogManager;
 
+import java.net.InetAddress;
 import java.sql.*;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -16,7 +17,9 @@ import java.util.concurrent.atomic.AtomicReference;
 public class Database {
     private final org.apache.logging.log4j.Logger logger = LogManager.getLogger(this.getClass().getName());
     private final BasicDataSource ds = new BasicDataSource();
-    private String url, username, password;
+    private final String url;
+    private final String username;
+    private final String password;
 
     /**
      * Construct a database connector with given login details
@@ -67,6 +70,29 @@ public class Database {
         }
 
         return ex != null;
+    }
+
+    public void updateMinecraftUserLastAccessDetails(InetAddress ipaddr, double x, double y, double z, String username) throws SQLException {
+        AtomicReference<SQLException> ex = null;
+        this.runOnDatabase((conn) -> {
+            try {
+                PreparedStatement updateStatement = conn.prepareStatement("UPDATE minecraft_users " +
+                        "SET last_ip_address = ?, last_x, = ? last_y = ?, last_z = ? " +
+                        "WHERE username = ?");
+                updateStatement.setString(1, ipaddr.getHostAddress());
+                updateStatement.setDouble(2, x);
+                updateStatement.setDouble(3, y);
+                updateStatement.setDouble(4, z);
+                updateStatement.setString(5, username);
+                updateStatement.executeUpdate();
+            } catch (SQLException e) {
+                ex.set(e);
+            }
+        });
+
+        if (ex != null) {
+            throw ex.get();
+        }
     }
 
     /**

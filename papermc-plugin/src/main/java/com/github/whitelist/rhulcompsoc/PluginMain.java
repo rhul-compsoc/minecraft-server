@@ -5,6 +5,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerPreLoginEvent;
 import org.bukkit.event.player.AsyncPlayerPreLoginEvent.Result;
+import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.sql.SQLException;
@@ -92,5 +93,19 @@ public class PluginMain extends JavaPlugin implements Listener {
         }
 
         event.allow();
+    }
+
+    @EventHandler
+    public void afterPlayerJoin(PlayerJoinEvent event) {
+        try {
+            conn.updateMinecraftUserLastAccessDetails(event.getPlayer().getAddress().getAddress(),
+                    event.getPlayer().getLocation().getX(),
+                    event.getPlayer().getLocation().getY(),
+                    event.getPlayer().getLocation().getZ(),
+                    event.getPlayer().getName());
+        } catch (SQLException e) {
+            e.printStackTrace();
+            getLogger().warning("Cannot update player status");
+        }
     }
 }

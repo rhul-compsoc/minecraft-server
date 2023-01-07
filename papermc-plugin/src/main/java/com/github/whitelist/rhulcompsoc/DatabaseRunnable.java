@@ -11,5 +11,5 @@ public interface DatabaseRunnable {
      *
      * @param conn the connection to the database
      */
-    public void run(Connection conn);
+    void run(Connection conn);
 }
