@@ -78,7 +78,7 @@ public class Database {
             try {
                 PreparedStatement updateStatement = conn.prepareStatement("UPDATE minecraft_users " +
                         "SET last_ip_address = ?, last_x, = ? last_y = ?, last_z = ? " +
-                        "WHERE username = ?");
+                        "WHERE username = ?;");
                 updateStatement.setString(1, ipaddr.getHostAddress());
                 updateStatement.setDouble(2, x);
                 updateStatement.setDouble(3, y);
@@ -109,7 +109,8 @@ public class Database {
         this.runOnDatabase((conn -> {
             try {
                 conn.setAutoCommit(false);
-                PreparedStatement getVerficationCountForUserPs = conn.prepareStatement("SELECT count(discord_user_id) FROM discord_minecraft_users WHERE verified = true AND miencraft_user = ?;");
+                PreparedStatement getVerficationCountForUserPs = conn.prepareStatement("SELECT count(discord_user_id) " +
+                        "FROM discord_minecraft_users WHERE verified = true AND miencraft_user = ?;");
                 PreparedStatement getMinecraftUserPs = conn.prepareStatement("SELECT * FROM minecraft_users WHERE username = ?;");
 
                 getVerficationCountForUserPs.setString(1, username);
