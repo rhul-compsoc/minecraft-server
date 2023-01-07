@@ -112,8 +112,6 @@ func (c *VerifyCommand) Execute(ctx *Context) bool {
 			return err
 		}
 
-		log.Print(mcUser.VerificationNumber)
-		log.Print(verificationCode)
 		if verificationCode != mcUser.VerificationNumber {
 			return errors.New("Incorrect verification code")
 		}
