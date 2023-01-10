@@ -79,7 +79,7 @@ public class Database {
     }
 
     public void updateMinecraftUserLastAccessDetails(InetAddress ipaddr, double x, double y, double z, String username) throws SQLException {
-        AtomicReference<SQLException> ex = null;
+        AtomicReference<SQLException> ex = new AtomicReference<>();
         this.runOnDatabase((conn) -> {
             try {
                 PreparedStatement updateStatement = conn.prepareStatement("UPDATE minecraft_users " +
@@ -96,7 +96,7 @@ public class Database {
             }
         });
 
-        if (ex != null) {
+        if (ex.get() != null) {
             throw ex.get();
         }
     }
