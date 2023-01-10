@@ -1,4 +1,4 @@
-package com.github.whitelist.rhulcompsoc;
+package com.github.hulcompsoc.whitelist;
 
 import java.sql.Connection;
 

@@ -1,4 +1,4 @@
-package com.github.whitelist.rhulcompsoc;
+package com.github.hulcompsoc.whitelist;
 
 import io.github.cdimascio.dotenv.Dotenv;
 import org.bukkit.event.EventHandler;
@@ -6,6 +6,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerPreLoginEvent;
 import org.bukkit.event.player.AsyncPlayerPreLoginEvent.Result;
 import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.sql.SQLException;
@@ -78,7 +79,7 @@ public class PluginMain extends JavaPlugin implements Listener {
                 event.disallow(Result.KICK_BANNED, "Your account has been banned via the Discord bot. Please contract committee if this is wrong.");
                 getLogger().info("User " + event.getName() + " has been banned but has tried to join.");
                 return;
-            } else if (user.getVerified() == 0) {
+            } else if (user.getVerified() == 0) {https://discord.com/channels/500612695570120704/1045311826528849960
                 // Check that the user has been verified at least once
                 event.disallow(Result.KICK_OTHER, "This Minecraft account has not been verified yet, please use '/mcverify "
                         + event.getName() + " "
@@ -89,6 +90,10 @@ public class PluginMain extends JavaPlugin implements Listener {
         } catch (SQLException e) {
             e.printStackTrace();
             event.disallow(Result.KICK_OTHER, "An internal server error has occurred :(");
+            return;
+        } catch (UserNotFoundException e) {
+            e.printStackTrace();
+            event.disallow(Result.KICK_OTHER, "You are not in the Compsoc Minecraft server's whitelist. Please use '/mcadd " + event.getName() + "'");
             return;
         }
 
@@ -106,6 +111,14 @@ public class PluginMain extends JavaPlugin implements Listener {
         } catch (SQLException e) {
             e.printStackTrace();
             getLogger().warning("Cannot update player status");
+        }
+    }
+
+    @EventHandler
+    public void onPlayerCommandPreprocess(PlayerCommandPreprocessEvent event) {
+        String perms = getCommand(event.getEventName()).getPermission();
+        if (perms != null && perms != "" && perms != "none") {
+            // Check permissions
         }
     }
 }

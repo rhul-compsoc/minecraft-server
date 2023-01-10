@@ -1,4 +1,4 @@
-package com.github.whitelist.rhulcompsoc;
+package com.github.hulcompsoc.whitelist;
 
 public class MinecraftUser {
     private final String username;

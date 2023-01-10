@@ -1,4 +1,4 @@
-package com.github.whitelist.rhulcompsoc;
+package com.github.hulcompsoc.whitelist;
 
 import org.apache.commons.dbcp2.BasicDataSource;
 import org.apache.logging.log4j.LogManager;
@@ -53,6 +53,12 @@ public class Database {
      * @since 1
      */
     public boolean runOnDatabase(DatabaseRunnable runnable) throws SQLException {
+        try {
+            Class.forName("org.postgresql.Driver");
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        }
+
         Connection conn = null;
         RuntimeException ex = null;
 
@@ -102,24 +108,30 @@ public class Database {
      * @return the user object
      * @throws SQLException thrown if any SQL errors occur when trying to get the user
      */
-    public MinecraftUser getUser(String username) throws SQLException {
-        AtomicReference<MinecraftUser> ret = null;
-        AtomicReference<SQLException> ex = null;
+    public MinecraftUser getUser(String username) throws SQLException, UserNotFoundException {
+        AtomicReference<MinecraftUser> ret = new AtomicReference<>(null);
+        AtomicReference<SQLException> ex = new AtomicReference<>(null);
+        AtomicReference<UserNotFoundException> ex2 = new AtomicReference<>(null);
 
         this.runOnDatabase((conn -> {
             try {
                 conn.setAutoCommit(false);
                 PreparedStatement getVerficationCountForUserPs = conn.prepareStatement("SELECT count(discord_user_id) " +
-                        "FROM discord_minecraft_users WHERE verified = true AND miencraft_user = ?;");
+                        "FROM discord_minecraft_users WHERE verified = true AND minecraft_user = ?;");
                 PreparedStatement getMinecraftUserPs = conn.prepareStatement("SELECT * FROM minecraft_users WHERE username = ?;");
 
                 getVerficationCountForUserPs.setString(1, username);
                 ResultSet res = getVerficationCountForUserPs.executeQuery();
+                if (!res.next()) {
+                    throw new UserNotFoundException();
+                }
                 final int verified = res.getInt(1);
 
                 getMinecraftUserPs.setString(1, username);
                 res = getMinecraftUserPs.executeQuery();
-                res.next();
+                if (!res.next()) {
+                    throw new UserNotFoundException();
+                }
                 final MinecraftUser user = new MinecraftUser(res.getString("username"),
                         res.getInt("verification_number"),
                         res.getBoolean("banned"),
@@ -129,10 +141,16 @@ public class Database {
                 conn.commit();
             } catch (SQLException e) {
                 ex.set(e);
+            } catch (UserNotFoundException e) {
+                ex2.set(e);
             }
         }));
 
-        if (ex != null) {
+        if (ex2.get() != null) {
+            throw ex2.get();
+        }
+
+        if (ex.get() != null) {
             throw ex.get();
         }
         return ret.get();
